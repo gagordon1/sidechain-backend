@@ -1,0 +1,117 @@
+# Sidechain API
+
+Upload, Get works, like, comment, get work, get stems
+
+**Data types**
+
+Contract Address : String
+
+Wallet Address : String
+
+File Link : String
+
+Sidechain Metadata : {
+
+data : [
+
+{
+
+description : String
+
+name : String
+
+image : String (link to file)
+
+asset_specific_data : {
+
+audio : File Link
+
+tags : [String]
+
+stems : [
+
+{track_name  : String, file : File Link}
+
+]
+
+creator : String | Wallet Address
+
+comments : [{commenter : Wallet Address, text : String, time : int}]
+
+likes : [{liker : Wallet Address, time : int}]
+
+timestamp : int
+
+}
+
+}
+
+]
+
+}
+
+**def upload_work(wallet_address, …(all required params))**
+
+user : Wallet Address
+
+**def get_works_by_user(user):**
+
+returns  [Contract Address]
+
+#authorization required
+
+wallet_address : Wallet Address
+
+contract_address : Contract Address
+
+**def like_work(wallet_address, contract_address)**
+
+#authorization required
+
+wallet_address : Wallet Address
+
+contract_address : Contract Address
+
+text : String
+
+**def comment_work(wallet_address, contract_address, text)**
+
+sort : “trending” | “recent” | “top”
+
+search : String
+
+limit : int (default : 30)
+
+offset : int (default : 0) 
+
+**def get_works(sort, search, limit, offset)**
+
+returns [Contract Address]
+
+#authorization required
+
+Downloads stems and adds contract to a wallets’ list of downloads
+
+wallet_address : Wallet Address
+
+contract_address : Contract Address
+
+**def download_stems(wallet_address, contract_address)**
+
+returns [{track_name : String, file : File Link}]
+
+For a wallet address, get a list of contracts where they’ve downloaded stems
+
+along with time of download
+
+wallet_address : Wallet Address
+
+**def get_downloads(wallet_address):**
+
+returns [{contract_address : Contract Address, timestamp : int}] 
+
+contract_address : Contract Address
+
+**def get(contract_address):**
+
+returns Sidechain Metadata
