@@ -16,12 +16,14 @@ test_data_1 = {
 
 test_data_2 = {
         "id" : "2",
-        "description" : None,
-        "image" : None,
-        "name" : None,
+        "description" : "",
+        "image" : "",
+        "name" : "",
         "artwork" : "https://www.google.com/maps",
-        "project_files" : None
+        "project_files" :""
     }
+def passed():
+    print("\t\tpassed!")
 
 def run_aws_controller_tests():
     """
@@ -40,6 +42,25 @@ def run_aws_controller_tests():
             artwork = test_data["artwork"]
             project_files = test_data["project_files"]
             upload_metadata_to_database(id, description, image, name, artwork, project_files)
+            dynamodb = boto3.client("dynamodb", region_name=AWS_REGION)
+            result = dynamodb.get_item(TableName=AWS_METADATA_TABLE_NAME,
+                Key={
+                    "id" : {"S" : id}
+                }
+            )
+            item = result["Item"]
+            for attr in test_data:
+                assert test_data[attr] == item[attr]['S'], "Value in database for {attr} was incorrect."
+        passed()
+        
+        print("\ttest2...")
+        for test_data in [test_data_1, test_data_2]:
+            id = test_data["id"]
+            description = test_data["description"]
+            image = test_data["image"]
+            name = test_data["name"]
+            artwork = test_data["artwork"]
+            project_files = test_data["project_files"]
             expected = {
                 "description" : description,
                 "external_url" : SIDECHAIN_BASE_URL + "/artwork/" + id,
@@ -50,37 +71,8 @@ def run_aws_controller_tests():
                     "artwork" : artwork
                 }
             }
-            dynamodb = boto3.client("dynamodb", region_name=AWS_REGION)
-            result = dynamodb.get_item(TableName=AWS_METADATA_TABLE_NAME,
-                Key={
-                    "id" : {"S" : id}
-                }
-            )
-            print(result)
-        
-            # response = requests.get(link)
-            # assert response.data == expected, "metadata was different than expected"
-        
-        # print("\ttest2...")
-        # for test_data in [test_data_1, test_data_2]:
-        #     id = test_data["id"]
-        #     description = test_data["description"]
-        #     image = test_data["image"]
-        #     name = test_data["name"]
-        #     artwork = test_data["artwork"]
-        #     project_files = test_data["project_files"]
-        #     expected = {
-        #         "description" : description,
-        #         "external_url" : SIDECHAIN_BASE_URL + "/artwork/" + id,
-        #         "image" : image,
-        #         "name" : name,
-        #         "asset_specific_data" : {
-        #             "project_files" : project_files,
-        #             "artwork" : artwork
-        #         }
-        #     }
-        #     metadata = get_metadata_from_aws_bucket(id)
-        #     assert response.data == expected, "metadata was different than expected"
+            metadata = get_metadata_from_aws_bucket(id)
+            assert metadata == expected, "metadata was different than expected"
 
         # print("\ttest3...")
         # for test_data in [test_data_1, test_data_2]:

@@ -1,7 +1,7 @@
 
 from flask import Flask, request, redirect, g, render_template, jsonify
 from flask_cors import CORS
-from aws_controller import upload_metadata_to_aws_bucket, upload_file_to_aws_bucket, get_metadata_from_aws_bucket
+from aws_controller import upload_metadata_to_database, upload_file_to_aws_bucket, get_metadata_from_aws_bucket
 import uuid
 
 PORT = 8080
@@ -28,10 +28,10 @@ POST
     Uses the Opensea standard
     
 
-    image : jpg file (optional)
-    description : str (optional)
-    name : str (optional)
-    project_files : [audio file] (optional)
+    image : jpg file 
+    description : str 
+    name : str 
+    project_files : [audio file]
     artwork : audio_file
 
     responds with base uri on success
@@ -41,9 +41,9 @@ POST
 @ app.route("/upload", methods=["POST"])
 def upload_metadata():
     try:
+        artwork = request.files["artwork"]
         name = request.form["name"]
         description = request.form["description"]
-        artwork = request.files["artwork"]
         if "image" in request.files:
             image = request.files["image"]
         if "project_files" in request.files:
@@ -53,15 +53,15 @@ def upload_metadata():
         id = uuid.uuid4()
         # #upload files to aws
         artwork_link = upload_file_to_aws_bucket(id + "/artwork", artwork)
-        image_link = None
-        project_files_link = None
+        image_link = ""
+        project_files_link = ""
         if image:
             image_link = upload_file_to_aws_bucket(id + "/image", image)
         if project_files:
             project_files_link = upload_file_to_aws_bucket(id + "/project_files", project_files)
 
         #upload metadata file
-        upload_metadata_to_aws_bucket(id, description, image_link, name, artwork_link, project_files_link)
+        upload_metadata_to_database(id, description, image_link, name, artwork_link, project_files_link)
         return "hi"
     except:
         return "Error in request", 400

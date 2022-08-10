@@ -4,7 +4,7 @@ import time
 
 
 def upload_metadata_to_database(id, description, image, name, artwork, project_files):
-    """Uploads a metadata record to dynamodb
+    """Uploads a metadata record to metadata database
 
     Args:
         id uuid: id for the metadata file
@@ -15,10 +15,7 @@ def upload_metadata_to_database(id, description, image, name, artwork, project_f
         project_files str | None: link to hosted project zip file
     
     Raises:
-        Error: Error when uploading to aws server
-    
-    Returns:
-        str: link to the metadata file if successful
+        Error: Error when uploading to database
     """
     dynamodb = boto3.client("dynamodb", region_name=AWS_REGION)
     dynamodb.put_item(TableName=AWS_METADATA_TABLE_NAME,
