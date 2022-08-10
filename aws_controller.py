@@ -1,7 +1,10 @@
 import boto3
+from config import AWS_REGION, AWS_METADATA_TABLE_NAME
+import time
 
-def upload_metadata_to_aws_bucket(id, description, image, name, artwork, project_files):
-    """Uploads a JSON metadata file to AWS
+
+def upload_metadata_to_database(id, description, image, name, artwork, project_files):
+    """Uploads a metadata record to dynamodb
 
     Args:
         id uuid: id for the metadata file
@@ -17,7 +20,19 @@ def upload_metadata_to_aws_bucket(id, description, image, name, artwork, project
     Returns:
         str: link to the metadata file if successful
     """
-    pass
+    dynamodb = boto3.client("dynamodb", region_name=AWS_REGION)
+    dynamodb.put_item(TableName=AWS_METADATA_TABLE_NAME,
+         ReturnValues="ALL_OLD",
+         Item={
+            'id':{'S':id},
+            'description':{'S':description},
+            'image':{'S':image},
+            'name':{'S':name},
+            'artwork':{'S':artwork},
+            'project_files':{'S':project_files},
+            'timestamp_added':{'N' : str(time.time())}
+        }
+    )
 
 def upload_file_to_aws_bucket(path, data):
     """Uploads a file to aws bucket at a specified path
