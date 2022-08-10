@@ -45,11 +45,12 @@ def upload_metadata():
         artwork = request.files["artwork"]
         name = request.form["name"]
         description = request.form["description"]
+        image = None
+        project_files = None
         if "image" in request.files:
             image = request.files["image"]
         if "project_files" in request.files:
             project_files = request.files["project_files"]
-        
 
         id = str(uuid.uuid4())
         # #upload files to aws
