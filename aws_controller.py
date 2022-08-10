@@ -30,3 +30,29 @@ def upload_file_to_aws_bucket(path, data):
         str: link to the hosted file
     """
     pass
+
+def get_metadata_from_aws_bucket(id):
+    """_summary_
+
+    Args:
+        id str: unique id for a contract address's metadata
+
+    Returns:
+        object: metadata of the format sidechain_metadata_standard.json
+    """
+    pass
+
+
+def delete_record(id):
+    """Deletes a sidechain metadata record along with the files it points to
+
+    Args:
+        id str: unique id for a sidechain record
+
+    Raises:
+        Exception : Exception while attempting to delete a file
+
+    Returns:
+        boolean: true on successful deletion, false if id not found
+    """
+    pass
