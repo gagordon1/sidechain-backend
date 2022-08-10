@@ -105,14 +105,11 @@ def run_aws_controller_tests():
         response = requests.get(AWS_S3_BUCKET_ADDRESS + "/" + file_path)
         assert response.status_code == 403, "request to deleted file did not error out"
         passed()
-
-
-
     
-    # print("Test Metadata\n")
-    # test_metadata()
+    print("Test Metadata")
+    test_metadata()
 
-    print("Test File Upload\n")
+    print("Test File Upload")
     test_file_upload()
 
 
