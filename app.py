@@ -1,105 +1,70 @@
+
 from flask import Flask, request, redirect, g, render_template, jsonify
-import json
-import requests
+from flask_cors import CORS
+from aws_controller import upload_metadata_to_aws_bucket, upload_file_to_aws_bucket, get_metadata_from_aws_bucket
+import uuid
 
 PORT = 8080
 app = Flask(__name__)
+CORS(app)
 
 """
 GET
     Gets metadata for a contract address
-    contract_address : str
+    id : str metadata id for a contract
+    token_id : int
     returns Sidechain Metadata
 """
-@ app.route("/:contract_address/:token_id", methods=["GET"])
-def metadata(contract_address):
-    pass
-
-
-"""
-For a wallet address, get a list of contracts where they’ve downloaded stems
-along with time of download
-    wallet_address : Wallet Address
-    returns [{contract_address : Contract Address, timestamp : int}] 
-"""
-@ app.route("/downloads/:wallet_address", methods=["GET"])
-def get_downloads(wallet_address):
-    pass
-
-
+@ app.route("/<id>/<token_id>", methods=["GET"])
+def metadata(id, token_id):
+    try:
+        return get_metadata_from_aws_bucket(id)
+    except:
+        return "Could not get metadata for the given URI", 400
 
 """
-authorization required
-Downloads stems and adds contract to a wallets’ list of downloads
-    body: 
-        wallet_address : Wallet Address
-        contract_address : Contract Address
-    returns [{track_name : String, file : File Link}]
+POST
+    Uploads a new sidechain metadata file
+    Uses the Opensea standard
+    
+
+    image : jpg file (optional)
+    description : str (optional)
+    name : str (optional)
+    project_files : [audio file] (optional)
+    artwork : audio_file
+
+    responds with base uri on success
+
+    400 : artwork parameter is missing
 """
-@ app.route("/download", methods = ["POST"])
-def download_stems():
-    pass
+@ app.route("/upload", methods=["POST"])
+def upload_metadata():
+    try:
+        name = request.form["name"]
+        description = request.form["description"]
+        artwork = request.files["artwork"]
+        if "image" in request.files:
+            image = request.files["image"]
+        if "project_files" in request.files:
+            project_files = request.files["project_files"]
+        
 
-"""
-Gets a list of contract addresses
-    params :
-        sort : “trending” | “recent” | “top”
-        search : String
-        limit : int (default : 30)
-        offset : int (default : 0) 
-    returns [Contract Address]
-"""
-@ app.route("/works", methods = ["GET"])
-def get_works():
-    pass
+        id = uuid.uuid4()
+        # #upload files to aws
+        artwork_link = upload_file_to_aws_bucket(id + "/artwork", artwork)
+        image_link = None
+        project_files_link = None
+        if image:
+            image_link = upload_file_to_aws_bucket(id + "/image", image)
+        if project_files:
+            project_files_link = upload_file_to_aws_bucket(id + "/project_files", project_files)
 
-
-#authorization required
-"""
-Posts a comment to a contract address
-    body :
-        wallet_address : Wallet Address
-        contract_address : Contract Address
-        text : String
-"""
-@ app.route("/comment", methods = ["POST"])
-def comment_work():
-    pass
-
-
-#authorization required
-"""
-Likes a contract address
-    body :
-        wallet_address : Wallet Address
-        contract_address : Contract Address
-"""
-@ app.route("/like", methods = ["POST"])
-def like_work():
-    pass
-
-"""
-Given a user, get collection of created works
-    user : Wallet Address
-    returns  [Contract Address]
-"""
-@ app.route("/works/:user", methods = ["GET"])
-def get_works_by_user(user):
-    pass
-
-
-"""
-Given required metadata params, create a work
-    body:
-        data : Sidechain Metadata
-"""
-@ app.route("/upload", methods = ["POST"])
-def upload_work():
-    pass
-
-
-
-
+        #upload metadata file
+        upload_metadata_to_aws_bucket(id, description, image_link, name, artwork_link, project_files_link)
+        return "hi"
+    except:
+        return "Error in request", 400
 
 
 if __name__ == "__main__":

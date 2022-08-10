@@ -1,0 +1,10 @@
+{
+    "description" : "str",
+    "external_url" : "link to sidechain profile for asset",
+    "image" : "link",
+    "name" : "str",
+    "asset_specific_data" : {
+        "project_files" : "link",
+        "artwork" : "link"
+    }
+}
