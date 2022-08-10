@@ -102,15 +102,13 @@ def delete_record(id):
     return False
 
 def delete_file_from_aws_bucket(path):
-    """Deletes a file given a path within an AWS S3 bucket
+    """Deletes a file given a path within an AWS S3 bucket if it exists
 
     Args:
         path str: path to an S3 file for a bucket
     
     Raises:
         Exception : Exception while attempting to delete a file
-    
-    Returns:
-        boolean: true on successful deletion, false if file not found.
     """
-    pass
+    s3 = boto3.resource('s3')
+    result = s3.Bucket(AWS_BUCKET).Object(path).delete()
