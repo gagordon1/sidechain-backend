@@ -1,7 +1,7 @@
 
-from flask import Flask, request, redirect, g, render_template, jsonify
+from flask import Flask, request
 from flask_cors import CORS
-from aws_controller import upload_metadata_to_database, get_metadata_from_aws_bucket, upload_hosted_file_to_aws_bucket, upload_downloadable_file_to_aws_bucket
+from aws_controller import upload_metadata_to_database, get_metadata_from_aws_bucket, upload_file_to_aws_bucket
 from config import METADATA_SERVER
 import uuid
 
@@ -53,13 +53,13 @@ def upload_metadata():
 
         id = str(uuid.uuid4())
         # #upload files to aws
-        artwork_link = upload_hosted_file_to_aws_bucket(id + "/artwork", artwork.read(), artwork.content_type)
+        artwork_link = upload_file_to_aws_bucket(id + "/artwork", artwork.read(), artwork.content_type)
         image_link = ""
         project_files_link = ""
         if image:
-            image_link = upload_hosted_file_to_aws_bucket(id + "/image", image.read(), image.content_type)
+            image_link = upload_file_to_aws_bucket(id + "/image", image.read(), image.content_type)
         if project_files:
-            project_files_link = upload_hosted_file_to_aws_bucket(id + "/project_files", project_files.read(), project_files.content_type)
+            project_files_link = upload_file_to_aws_bucket(id + "/project_files", project_files.read(), project_files.content_type)
 
         #upload metadata file
         upload_metadata_to_database(id, description, image_link, name, artwork_link, project_files_link)

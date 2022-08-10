@@ -1,7 +1,8 @@
 from cgi import test
 from email.mime import image
-from aws_controller import delete_record, upload_file_to_aws_bucket, upload_metadata_to_database, get_metadata_from_aws_bucket
-from config import SIDECHAIN_BASE_URL, AWS_REGION, AWS_METADATA_TABLE_NAME
+from urllib import response
+from aws_controller import delete_record, upload_metadata_to_database, get_metadata_from_aws_bucket, upload_file_to_aws_bucket, delete_file_from_aws_bucket
+from config import AWS_REGION, AWS_METADATA_TABLE_NAME, AWS_S3_BUCKET_ADDRESS
 import requests
 import boto3
 
@@ -86,16 +87,33 @@ def run_aws_controller_tests():
 
     """
     Strategy:
-        Test upload_file_to_aws_bucket manually checking that files are intact in their buckets
+        Test uploading and deleting files
     """
     def test_file_upload():
-        pass
+        file_path = "test_file_1"
+        data = "hello"
+        content_type = "text/plain"
+        print("\ttest1...")
+        upload_file_to_aws_bucket(file_path, data, content_type)
+        response = requests.get(AWS_S3_BUCKET_ADDRESS + "/" + file_path)
+        assert response.text == data, "file was not correctly uploaded"
+        passed()
+
+
+        print("\ttest2...")
+        delete_file_from_aws_bucket(file_path)
+        response = requests.get(AWS_S3_BUCKET_ADDRESS + "/" + file_path)
+        assert response.status_code == 403, "request to deleted file did not error out"
+        passed()
 
 
 
     
-    print("Test Metadata\n")
-    test_metadata()
+    # print("Test Metadata\n")
+    # test_metadata()
+
+    print("Test File Upload\n")
+    test_file_upload()
 
 
 

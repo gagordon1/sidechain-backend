@@ -31,22 +31,13 @@ def upload_metadata_to_database(id, description, image, name, artwork, project_f
         }
     )
 
-def upload_downloadable_file_to_aws_bucket(path, data):
-    """Uploads a file to aws that can be downloaded
-
-    Args:
-        path str: path in the bucket to the file
-        data file: zip file
-    """
-    pass
-
-def upload_hosted_file_to_aws_bucket(path, data, content_type):
+def upload_file_to_aws_bucket(path, data, content_type):
     """Uploads a hosted file to aws bucket
 
     Args:
         path str: path to the file in bucket
         data bytes: bytes object
-        content_type str: valid mimetype (https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.17)
+        content_type str: valid mimetype (https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types)
     """
     s3 = boto3.resource('s3')
     result = s3.Bucket(AWS_BUCKET).Object(path).put(Body=data, ContentType=content_type)
@@ -110,11 +101,11 @@ def delete_record(id):
         return True
     return False
 
-def delete_file(path):
-    """Deletes a file given a link to AWS S3
+def delete_file_from_aws_bucket(path):
+    """Deletes a file given a path within an AWS S3 bucket
 
     Args:
-        path str: path to an S3 file
+        path str: path to an S3 file for a bucket
     
     Raises:
         Exception : Exception while attempting to delete a file
