@@ -1,5 +1,5 @@
 import boto3
-from config import AWS_REGION, AWS_METADATA_TABLE_NAME
+from config import AWS_REGION, AWS_METADATA_TABLE_NAME, AWS_BUCKET, AWS_S3_BUCKET_ADDRESS
 import time
 
 
@@ -31,17 +31,26 @@ def upload_metadata_to_database(id, description, image, name, artwork, project_f
         }
     )
 
-def upload_file_to_aws_bucket(path, data):
-    """Uploads a file to aws bucket at a specified path
+def upload_downloadable_file_to_aws_bucket(path, data):
+    """Uploads a file to aws that can be downloaded
+
+    Args:
+        path str: path in the bucket to the file
+        data file: zip file
+    """
+    pass
+
+def upload_hosted_file_to_aws_bucket(path, data, content_type):
+    """Uploads a hosted file to aws bucket
 
     Args:
         path str: path to the file in bucket
-        data file: any file
-
-    Returns:
-        str: link to the hosted file
+        data bytes: bytes object
+        content_type str: valid mimetype (https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.17)
     """
-    pass
+    s3 = boto3.resource('s3')
+    result = s3.Bucket(AWS_BUCKET).Object(path).put(Body=data, ContentType=content_type)
+    return AWS_S3_BUCKET_ADDRESS + "/" + path
 
 def get_metadata_from_aws_bucket(id):
     """_summary_
@@ -101,11 +110,11 @@ def delete_record(id):
         return True
     return False
 
-def delete_file(link):
+def delete_file(path):
     """Deletes a file given a link to AWS S3
 
     Args:
-        link str: link to an S3 file
+        path str: path to an S3 file
     
     Raises:
         Exception : Exception while attempting to delete a file
