@@ -63,7 +63,7 @@ def run_aws_controller_tests():
             project_files = test_data["project_files"]
             expected = {
                 "description" : description,
-                "external_url" : SIDECHAIN_BASE_URL + "/artwork/" + id,
+                "external_url" : "",
                 "image" : image,
                 "name" : name,
                 "asset_specific_data" : {
@@ -73,14 +73,16 @@ def run_aws_controller_tests():
             }
             metadata = get_metadata_from_aws_bucket(id)
             assert metadata == expected, "metadata was different than expected"
+        passed()
 
-        # print("\ttest3...")
-        # for test_data in [test_data_1, test_data_2]:
-        #     id = test_data["id"]
+        print("\ttest3...")
+        for test_data in [test_data_1, test_data_2]:
+            id = test_data["id"]
 
-        #     assert delete_record(id), "could not find and delete record"
+            assert delete_record(id), "could not find and delete record"
         
-        # assert not delete_record("3"), "deleting a nonexistent file did not return false"
+        assert not delete_record("3"), "deleting a nonexistent file did not return false"
+        passed()
 
     """
     Strategy:

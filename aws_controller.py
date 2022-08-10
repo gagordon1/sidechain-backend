@@ -48,11 +48,30 @@ def get_metadata_from_aws_bucket(id):
 
     Args:
         id str: unique id for a contract address's metadata
+    
+    Raises:
+        Exception : if item is not found.
 
     Returns:
         object: metadata of the format sidechain_metadata_standard.json
     """
-    pass
+    dynamodb = boto3.client("dynamodb", region_name=AWS_REGION)
+    result = dynamodb.get_item(TableName=AWS_METADATA_TABLE_NAME,
+        Key={
+            "id" : {"S" : id}
+        }
+    )
+    item = result["Item"]
+    return {
+        "description" : item["description"]["S"],
+        "external_url" : "",
+        "image" : item["image"]["S"],
+        "name" : item["name"]["S"],
+        "asset_specific_data" : {
+            "project_files" : item["project_files"]["S"],
+            "artwork" : item["artwork"]["S"]
+        }
+    }
 
 
 def delete_record(id):
@@ -66,5 +85,32 @@ def delete_record(id):
 
     Returns:
         boolean: true on successful deletion, false if id not found
+    """
+    dynamodb = boto3.client("dynamodb", region_name=AWS_REGION)
+    result = dynamodb.get_item(TableName=AWS_METADATA_TABLE_NAME,
+        Key={
+            "id" : {"S" : id}
+        }
+    )
+    if "Item" in result:
+        dynamodb.delete_item(TableName=AWS_METADATA_TABLE_NAME,
+            Key={
+                'id' : {'S' : id}
+            }
+        )
+        return True
+    return False
+
+def delete_file(link):
+    """Deletes a file given a link to AWS S3
+
+    Args:
+        link str: link to an S3 file
+    
+    Raises:
+        Exception : Exception while attempting to delete a file
+    
+    Returns:
+        boolean: true on successful deletion, false if file not found.
     """
     pass
