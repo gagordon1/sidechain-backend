@@ -5,6 +5,7 @@ from aws_controller import delete_record, upload_metadata_to_database, get_metad
 from config import AWS_REGION, AWS_METADATA_TABLE_NAME, AWS_S3_BUCKET_ADDRESS
 import requests
 import boto3
+import time
 
 test_data_1 = {
         "id" : "1",
@@ -12,7 +13,8 @@ test_data_1 = {
         "image" : "https://www.google.com",
         "name" : "Artwork 1",
         "artwork" : "https://www.google.com/maps",
-        "project_files" : "https://www.google.com/docs"
+        "project_files" : "https://www.google.com/docs",
+        "timestamp_added" : str(time.time())
     }
 
 test_data_2 = {
@@ -21,7 +23,8 @@ test_data_2 = {
         "image" : "",
         "name" : "",
         "artwork" : "https://www.google.com/maps",
-        "project_files" :""
+        "project_files" :"",
+        "timestamp_added" : str(time.time())
     }
 def passed():
     print("\t\tpassed!")
@@ -42,7 +45,8 @@ def run_aws_controller_tests():
             name = test_data["name"]
             artwork = test_data["artwork"]
             project_files = test_data["project_files"]
-            upload_metadata_to_database(id, description, image, name, artwork, project_files)
+            timestamp = test_data["timestamp_added"]
+            upload_metadata_to_database(id, description, image, name, artwork, project_files, timestamp)
             dynamodb = boto3.client("dynamodb", region_name=AWS_REGION)
             result = dynamodb.get_item(TableName=AWS_METADATA_TABLE_NAME,
                 Key={
@@ -51,7 +55,10 @@ def run_aws_controller_tests():
             )
             item = result["Item"]
             for attr in test_data:
-                assert test_data[attr] == item[attr]['S'], "Value in database for {attr} was incorrect."
+                if attr == "timestamp_added":
+                    assert test_data[attr] == item[attr]['N'], "Value in database for {} was incorrect.".format(attr)
+                else:
+                    assert test_data[attr] == item[attr]['S'], "Value in database for {} was incorrect.".format(attr)
         passed()
         
         print("\ttest2...")
@@ -62,6 +69,7 @@ def run_aws_controller_tests():
             name = test_data["name"]
             artwork = test_data["artwork"]
             project_files = test_data["project_files"]
+            timestamp = test_data["timestamp_added"]
             expected = {
                 "description" : description,
                 "external_url" : "",
@@ -69,7 +77,8 @@ def run_aws_controller_tests():
                 "name" : name,
                 "asset_specific_data" : {
                     "project_files" : project_files,
-                    "artwork" : artwork
+                    "artwork" : artwork,
+                    "timestamp" : timestamp
                 }
             }
             metadata = get_metadata_from_aws_bucket(id)

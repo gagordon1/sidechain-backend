@@ -35,7 +35,7 @@ POST
     project_files : zip file
     artwork : file tested for (.mp3, .wav)
 
-    responds with base uri on success
+    responds with base uri on success (with trailing /)
 
     400 : artwork parameter is missing
 """
@@ -63,8 +63,8 @@ def upload_metadata():
             project_files_link = upload_file_to_aws_bucket(id + "/project_files", project_files.read(), project_files.content_type)
 
         #upload metadata file
-        upload_metadata_to_database(id, description, image_link, name, artwork_link, project_files_link)
-        return METADATA_SERVER + "/" + id
+        upload_metadata_to_database(id, description, image_link, name, artwork_link, project_files_link, str(time.time()))
+        return METADATA_SERVER + "/" + id + "/"
     except Exception as e:
         print(e)
         return "Error in request", 400

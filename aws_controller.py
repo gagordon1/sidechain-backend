@@ -3,7 +3,7 @@ from config import AWS_REGION, AWS_METADATA_TABLE_NAME, AWS_BUCKET, AWS_S3_BUCKE
 import time
 
 
-def upload_metadata_to_database(id, description, image, name, artwork, project_files):
+def upload_metadata_to_database(id, description, image, name, artwork, project_files, timestamp):
     """Uploads a metadata record to metadata database
 
     Args:
@@ -13,6 +13,7 @@ def upload_metadata_to_database(id, description, image, name, artwork, project_f
         name str: name of the artwork
         artwork str: link to artwork file
         project_files str | None: link to hosted project zip file
+        timestamp str : timestamp added
     
     Raises:
         Error: Error when uploading to database
@@ -27,7 +28,7 @@ def upload_metadata_to_database(id, description, image, name, artwork, project_f
             'name':{'S':name},
             'artwork':{'S':artwork},
             'project_files':{'S':project_files},
-            'timestamp_added':{'N' : str(time.time())}
+            'timestamp_added':{'N' : timestamp}
         }
     )
 
@@ -69,7 +70,8 @@ def get_metadata_from_aws_bucket(id):
         "name" : item["name"]["S"],
         "asset_specific_data" : {
             "project_files" : item["project_files"]["S"],
-            "artwork" : item["artwork"]["S"]
+            "artwork" : item["artwork"]["S"],
+            "timestamp" : item["timestamp_added"]["N"]
         }
     }
 
