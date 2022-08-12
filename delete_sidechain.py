@@ -23,6 +23,6 @@ def clear_database():
         delete_sidechain(i)
 
 if __name__ == "__main__":
-    id = sys.argv[1]
-    delete_sidechain(id)
-    # clear_database()
+    # id = sys.argv[1]
+    # delete_sidechain(id)
+    clear_database()
