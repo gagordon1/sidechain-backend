@@ -1,6 +1,14 @@
 import boto3
 from config import AWS_REGION, AWS_METADATA_TABLE_NAME, AWS_BUCKET, AWS_S3_BUCKET_ADDRESS
-import time
+
+def get_all_records():
+    """Gets all ids in the system.
+    """
+    dynamodb = boto3.resource("dynamodb", region_name=AWS_REGION)
+    table = dynamodb.Table(AWS_METADATA_TABLE_NAME)
+    return map(lambda x : x["id"], table.scan()["Items"])
+
+    
 
 
 def upload_metadata_to_database(id, description, image, name, artwork, project_files, timestamp):

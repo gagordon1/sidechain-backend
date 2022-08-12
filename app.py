@@ -4,6 +4,7 @@ from flask_cors import CORS
 from aws_controller import upload_metadata_to_database, get_metadata_from_aws_bucket, upload_file_to_aws_bucket
 from config import METADATA_SERVER
 import uuid
+import time
 
 PORT = 8080
 app = Flask(__name__)
