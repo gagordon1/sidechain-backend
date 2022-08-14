@@ -1,11 +1,8 @@
 from flask import Flask, request
 from flask_cors import CORS
-from aws_controller import get_metadata_from_aws_bucket, update_external_url
+from aws_controller import get_metadata_from_aws_bucket, update_external_url, query_sidechain
 from operations import upload_to_aws
 from config import SIDECHAIN_BASE_URL
-
-
-
 
 PORT = 8080
 app = Flask(__name__)
@@ -20,7 +17,7 @@ GET
 
 POST
     Updates external url in metadata file for a metadata id
-    request.data : contract address
+    request.data : contract address (text/plain)
 """
 @ app.route("/<id>/<token_id>", methods=["GET", "POST"])
 def metadata(id, token_id):
@@ -71,6 +68,24 @@ def upload_metadata():
     except Exception as e:
         print(e)
         return "Error in request", 400
+
+
+"""Gets all sidechains in the metadata database.
+
+    sort : str [timestamp_asc, timestamp_desc]
+    keyword : str 
+    limit : int number to return
+    offset : int index to start pulling from 
+"""
+@ app.route("/feed", methods=["GET"])
+def get_sidechains():
+    try:
+        offset = int(request.args.get('offset'))
+        limit = int(request.args.get('limit'))
+        return query_sidechain(request.args.get('sort'), request.args.get('keyword'),limit + offset, offset)
+    except Exception as e:
+        print(e)
+        return "Could not get feed", 400
 
 
 if __name__ == "__main__":

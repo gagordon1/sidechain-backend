@@ -1,4 +1,5 @@
 import boto3
+from boto3.dynamodb.conditions import Key
 from config import AWS_REGION, AWS_METADATA_TABLE_NAME, AWS_BUCKET, AWS_S3_BUCKET_ADDRESS
 
 def get_all_records():
@@ -24,6 +25,7 @@ def update_external_url(id, external_url):
     )
     item = result["Item"]
     item["external_url"] = {"S" : external_url}
+    item["contract_status"] = {"S" : "ok"}
     dynamodb.put_item(TableName=AWS_METADATA_TABLE_NAME,
         Item=item)
     return external_url
@@ -57,7 +59,8 @@ def upload_metadata_to_database(id, description, image, name, artwork, project_f
             'artwork':{'S':artwork},
             'project_files':{'S':project_files},
             'timestamp_added':{'N' : timestamp},
-            'external_url' : {'S' : ""}
+            'external_url' : {'S' : ""},
+            'contract_status' : {'S' : "pending"}
         }
     )
 
@@ -143,3 +146,30 @@ def delete_file_from_aws_bucket(path):
     """
     s3 = boto3.resource('s3')
     result = s3.Bucket(AWS_BUCKET).Object(path).delete()
+
+def query_sidechain(sort, keyword, limit = 10, offset=0):
+    """Queries metadata database for all sidechains
+
+    Args:
+        sort str: how to sort (timestamp_desc etc.)
+        keyword str: keyword to search the database by
+        limit (int, optional): how many to get including items cut off by the offset. Defaults to 10.
+        offset (int, optional) : when to start returning, defaults to 0
+    """
+    print(sort, keyword, limit, offset)
+    if sort == "timestamp_asc":
+        index = 'contract_status-timestamp_added-index'
+        sort_order = True
+    elif sort == "timestamp_desc":
+        index = 'contract_status-timestamp_added-index'
+        sort_order = False
+
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(AWS_METADATA_TABLE_NAME)
+    response = table.query(
+        IndexName= index,
+        KeyConditionExpression=Key('contract_status').eq('ok'),
+        Limit = limit,
+        ScanIndexForward = sort_order
+    )
+    return {"items" : response["Items"][offset:]}
