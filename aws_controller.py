@@ -8,6 +8,26 @@ def get_all_records():
     table = dynamodb.Table(AWS_METADATA_TABLE_NAME)
     return map(lambda x : x["id"], table.scan()["Items"])
 
+
+def update_external_url(id, external_url):
+    """Updates a metadata file with an external url to the sidechain frontend
+
+    Args:
+        id uuid: id for the metadata file
+        external_url str: link to the sidechain website where the contract can be viewed.
+    """
+    dynamodb = boto3.client("dynamodb", region_name=AWS_REGION)
+    result = dynamodb.get_item(TableName=AWS_METADATA_TABLE_NAME,
+        Key={
+            "id" : {"S" : id}
+        }
+    )
+    item = result["Item"]
+    item["external_url"] = {"S" : external_url}
+    dynamodb.put_item(TableName=AWS_METADATA_TABLE_NAME,
+        Item=item)
+    return external_url
+
     
 
 
@@ -36,7 +56,8 @@ def upload_metadata_to_database(id, description, image, name, artwork, project_f
             'name':{'S':name},
             'artwork':{'S':artwork},
             'project_files':{'S':project_files},
-            'timestamp_added':{'N' : timestamp}
+            'timestamp_added':{'N' : timestamp},
+            'external_url' : {'S' : ""}
         }
     )
 
@@ -49,7 +70,7 @@ def upload_file_to_aws_bucket(path, data, content_type):
         content_type str: valid mimetype (https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types)
     """
     s3 = boto3.resource('s3')
-    result = s3.Bucket(AWS_BUCKET).Object(path).put(Body=data, ContentType=content_type)
+    s3.Bucket(AWS_BUCKET).Object(path).put(Body=data, ContentType=content_type)
     return AWS_S3_BUCKET_ADDRESS + "/" + path
 
 def get_metadata_from_aws_bucket(id):
@@ -73,7 +94,7 @@ def get_metadata_from_aws_bucket(id):
     item = result["Item"]
     return {
         "description" : item["description"]["S"],
-        "external_url" : "",
+        "external_url" : item["external_url"]["S"],
         "image" : item["image"]["S"],
         "name" : item["name"]["S"],
         "asset_specific_data" : {
