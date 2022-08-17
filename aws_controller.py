@@ -1,6 +1,7 @@
 import boto3
 from boto3.dynamodb.conditions import Key
 from config import AWS_REGION, AWS_METADATA_TABLE_NAME, AWS_BUCKET, AWS_S3_BUCKET_ADDRESS
+from generate_default_image import generate_default_image
 
 def get_all_records():
     """Gets all ids in the system.
@@ -10,12 +11,14 @@ def get_all_records():
     return map(lambda x : x["id"], table.scan()["Items"])
 
 
-def update_external_url(id, external_url):
+def update_metadata_post_deployment(id, external_url, address):
     """Updates a metadata file with an external url to the sidechain frontend
+    posts a default image to aws if it didnt exist already
 
     Args:
         id uuid: id for the metadata file
         external_url str: link to the sidechain website where the contract can be viewed.
+        address: str contract address
     """
     dynamodb = boto3.client("dynamodb", region_name=AWS_REGION)
     result = dynamodb.get_item(TableName=AWS_METADATA_TABLE_NAME,
@@ -26,6 +29,8 @@ def update_external_url(id, external_url):
     item = result["Item"]
     item["external_url"] = {"S" : external_url}
     item["contract_status"] = {"S" : "ok"}
+    if item["image"]['S'] == "":
+        item["image"]["S"] = upload_file_to_aws_bucket(address + "/image", generate_default_image(address), "image/png")
     dynamodb.put_item(TableName=AWS_METADATA_TABLE_NAME,
         Item=item)
     return external_url

@@ -1,6 +1,6 @@
 from flask import Flask, request
 from flask_cors import CORS
-from aws_controller import get_metadata_from_aws_bucket, update_external_url, query_sidechain
+from aws_controller import get_metadata_from_aws_bucket, update_metadata_post_deployment, query_sidechain
 from operations import upload_to_aws
 from config import SIDECHAIN_BASE_URL
 
@@ -29,7 +29,8 @@ def metadata(id, token_id):
             return "Could not get metadata for the given URI", 400
     else:
         try:
-            return update_external_url(id, SIDECHAIN_BASE_URL + "/artwork/" + request.data.decode('utf-8'))
+            address = request.data.decode('utf-8')
+            return update_metadata_post_deployment(id, SIDECHAIN_BASE_URL + "/artwork/" + address, address)
         except Exception as e:
             print(e)
             return "Could not update external url", 400
