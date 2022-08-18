@@ -30,7 +30,7 @@ def update_metadata_post_deployment(id, external_url, address):
     item["external_url"] = {"S" : external_url}
     item["contract_status"] = {"S" : "ok"}
     if item["image"]['S'] == "":
-        item["image"]["S"] = upload_file_to_aws_bucket(address + "/image", generate_default_image(address), "image/png")
+        item["image"]["S"] = upload_file_to_aws_bucket(id + "/image", generate_default_image(address), "image/png")
     dynamodb.put_item(TableName=AWS_METADATA_TABLE_NAME,
         Item=item)
     return external_url
