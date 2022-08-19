@@ -161,7 +161,6 @@ def query_sidechain(sort, keyword, limit = 10, offset=0):
         limit (int, optional): how many to get including items cut off by the offset. Defaults to 10.
         offset (int, optional) : when to start returning, defaults to 0
     """
-    print(sort, keyword, limit, offset)
     if sort == "timestamp_asc":
         index = 'contract_status-timestamp_added-index'
         sort_order = True
