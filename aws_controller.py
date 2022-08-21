@@ -26,7 +26,6 @@ def update_metadata_post_deployment(id, external_url, address):
             "id" : {"S" : id}
         }
     )
-    print(id)
     item = result["Item"]
     item["external_url"] = {"S" : external_url}
     item["contract_status"] = {"S" : "ok"}
