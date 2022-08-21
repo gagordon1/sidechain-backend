@@ -5,7 +5,8 @@ from operations import upload_to_aws
 from config import SIDECHAIN_BASE_URL
 import uuid
 
-PORT = 8080
+
+PORT = 8000
 app = Flask(__name__)
 CORS(app)
 
