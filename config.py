@@ -11,7 +11,7 @@ if DEVELOPMENT:
     AWS_METADATA_TABLE_NAME = "Sidechain"
 else:
     SIDECHAIN_BASE_URL = "http://localhost:3000"
-    METADATA_SERVER = "http://18.212.228.207:8080"
+    METADATA_SERVER = "https://sidechain-backend.herokuapp.com"
     AWS_METADATA_TABLE_NAME = "Sidechain-Test-Network" #running on Rinkeby
 
 AWS_S3_BUCKET_ADDRESS = os.getenv("AWS_BUCKET_ADDRESS")
