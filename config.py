@@ -12,7 +12,7 @@ if DEVELOPMENT:
 else:
     SIDECHAIN_BASE_URL = "http://localhost:3000"
     METADATA_SERVER = "http://18.212.228.207:8080"
-    AWS_METADATA_TABLE_NAME = "Sidechain-Rinkeby"
+    AWS_METADATA_TABLE_NAME = "Sidechain-Test-Network" #running on Rinkeby
 
 AWS_S3_BUCKET_ADDRESS = os.getenv("AWS_BUCKET_ADDRESS")
 AWS_REGION = os.getenv("AWS_DEFAULT_REGION")
