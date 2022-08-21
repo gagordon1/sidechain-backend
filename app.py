@@ -3,6 +3,7 @@ from flask_cors import CORS
 from aws_controller import get_metadata_from_aws_bucket, update_metadata_post_deployment, query_sidechain
 from operations import upload_to_aws
 from config import SIDECHAIN_BASE_URL
+import uuid
 
 PORT = 8080
 app = Flask(__name__)
@@ -66,7 +67,8 @@ def upload_metadata():
             image = request.files["image"]
         if "project_files" in request.files:
             project_files = request.files["project_files"]
-        return upload_to_aws(artwork, name, description, image, project_files)
+        id = str(uuid.uuid4())
+        return upload_to_aws(artwork, name, description, image, project_files, id)
     except Exception as e:
         print(e)
         return "Error in request", 400

@@ -18,7 +18,7 @@ def deploy_test_network():
 			project_files = open(project_dir + "/project_files.zip", "rb")
 			description = "This is a description for {}. Remixes of this work will automatically allocate the specified REV percentage of tokens to this contract's creator upon minting.".format(title)
 			name = title
-			link = upload_to_aws(artwork, name, description, image, project_files, id="test-{}".format(title))
+			link = upload_to_aws(artwork, name, description, image, project_files, "test-{}".format(title))
 			print("\tbaseURI: {}".format(link))
 
 if __name__ == '__main__':

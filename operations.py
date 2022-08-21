@@ -7,7 +7,7 @@ default_content_types = {
     "artwork" : "audio/mpeg",
     "image" : "image/jpeg"
 }
-def upload_to_aws(artwork, name, description, image, project_files, content_types = default_content_types, id = str(uuid.uuid4())):
+def upload_to_aws(artwork, name, description, image, project_files, id, content_types = default_content_types):
 
     print(id)
     # #upload files to aws
