@@ -8,7 +8,7 @@ import uuid
 
 PORT = 8000
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": SIDECHAIN_BASE_URL}})
+CORS(app, origins=[SIDECHAIN_BASE_URL])
 
 
 """
