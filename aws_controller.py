@@ -53,6 +53,7 @@ def upload_metadata_to_database(id, description, image, name, artwork, project_f
     Raises:
         Error: Error when uploading to database
     """
+    print(id)
     dynamodb = boto3.client("dynamodb", region_name=AWS_REGION)
     dynamodb.put_item(TableName=AWS_METADATA_TABLE_NAME,
          ReturnValues="ALL_OLD",
