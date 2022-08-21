@@ -30,6 +30,7 @@ def metadata(id, token_id):
     else:
         try:
             address = request.data.decode('utf-8')
+            print(address)
             return update_metadata_post_deployment(id, SIDECHAIN_BASE_URL + "/artwork/" + address, address)
         except Exception as e:
             print(e)
