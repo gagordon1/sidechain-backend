@@ -10,7 +10,7 @@ if DEVELOPMENT:
     METADATA_SERVER = "http://localhost:8080"
     AWS_METADATA_TABLE_NAME = "Sidechain"
 else:
-    SIDECHAIN_BASE_URL = "https://sidechain-frontend.herokuapp.com"
+    SIDECHAIN_BASE_URL = "https://www.side-chain.xyz"
     METADATA_SERVER = "https://sidechain-backend.herokuapp.com"
     AWS_METADATA_TABLE_NAME = "Sidechain-Test-Network" #running on Rinkeby
 
