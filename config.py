@@ -3,7 +3,7 @@ import os
 load_dotenv()
 
 
-DEVELOPMENT = True
+DEVELOPMENT = False
 
 if DEVELOPMENT:
     SIDECHAIN_BASE_URL = "http://localhost:3000"
