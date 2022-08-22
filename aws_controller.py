@@ -38,7 +38,7 @@ def update_metadata_post_deployment(id, external_url, address):
     
 
 
-def upload_metadata_to_database(id, description, image, name, artwork, project_files, timestamp):
+def upload_metadata_to_database(id, description, image, name, artwork, project_files, auth_token, timestamp):
     """Uploads a metadata record to metadata database
 
     Args:
@@ -48,12 +48,12 @@ def upload_metadata_to_database(id, description, image, name, artwork, project_f
         name str: name of the artwork
         artwork str: link to artwork file
         project_files str | None: link to hosted project zip file
+        auth_token str : password to update metadata
         timestamp str : timestamp added
     
     Raises:
         Error: Error when uploading to database
     """
-    print(id)
     dynamodb = boto3.client("dynamodb", region_name=AWS_REGION)
     dynamodb.put_item(TableName=AWS_METADATA_TABLE_NAME,
          ReturnValues="ALL_OLD",
@@ -66,6 +66,7 @@ def upload_metadata_to_database(id, description, image, name, artwork, project_f
             'project_files':{'S':project_files},
             'timestamp_added':{'N' : timestamp},
             'external_url' : {'S' : ""},
+            'auth_token' : {'S' : auth_token},
             'contract_status' : {'S' : "pending"}
         }
     )
@@ -82,6 +83,16 @@ def upload_file_to_aws_bucket(path, data, content_type):
     s3.Bucket(AWS_BUCKET).Object(path).put(Body=data, ContentType=content_type)
     return AWS_S3_BUCKET_ADDRESS + "/" + path
 
+def get_metadata_item(id):
+    dynamodb = boto3.client("dynamodb", region_name=AWS_REGION)
+    result = dynamodb.get_item(TableName=AWS_METADATA_TABLE_NAME,
+        Key={
+            "id" : {"S" : id}
+        }
+    )
+    item = result["Item"]
+    return item
+
 def get_metadata_from_aws_bucket(id):
     """_summary_
 
@@ -94,13 +105,7 @@ def get_metadata_from_aws_bucket(id):
     Returns:
         object: metadata of the format sidechain_metadata_standard.json
     """
-    dynamodb = boto3.client("dynamodb", region_name=AWS_REGION)
-    result = dynamodb.get_item(TableName=AWS_METADATA_TABLE_NAME,
-        Key={
-            "id" : {"S" : id}
-        }
-    )
-    item = result["Item"]
+    item = get_metadata_item(id)
     return {
         "description" : item["description"]["S"],
         "external_url" : item["external_url"]["S"],

@@ -1,7 +1,7 @@
 from flask import Flask, request
 from flask_cors import CORS
 from aws_controller import get_metadata_from_aws_bucket, update_metadata_post_deployment, query_sidechain
-from operations import upload_to_aws
+from operations import upload_to_aws, valid_auth_token
 from config import SIDECHAIN_BASE_URL
 import uuid
 
@@ -20,7 +20,9 @@ GET
 
 POST
     Updates external url in metadata file for a metadata id
-    request.data : contract address (text/plain)
+    request.data : {contract address}%{authToken} (text/plain)
+
+    400 error if authToken is invalid.
 """
 @ app.route("/<id>/<token_id>", methods=["GET", "POST"])
 def metadata(id, token_id):
@@ -30,11 +32,14 @@ def metadata(id, token_id):
         except Exception as e:
             print(e)
             return "Could not get metadata for the given URI", 400
-    else:
+    elif request.method == "POST":
         try:
-            address = request.data.decode('utf-8')
-            print(address)
-            return update_metadata_post_deployment(id, SIDECHAIN_BASE_URL + "/artwork/" + address, address)
+            data = request.data.decode('utf-8')
+            [address, auth_token] = data.split("%")
+            if (valid_auth_token(id, auth_token)):
+                return update_metadata_post_deployment(id, SIDECHAIN_BASE_URL + "/artwork/" + address, address)
+            else:
+                return "Not authorized to update metadata", 400
         except Exception as e:
             print(e)
             return "Could not update external url", 400
@@ -53,7 +58,7 @@ POST
     project_files : zip file
     artwork : file tested for (.mp3, .wav)
 
-    responds with base uri on success (with trailing /)
+    responds with {base_uri with trailing /}%authToken on valid upload
 
     400 : artwork parameter is missing
 """
@@ -70,7 +75,9 @@ def upload_metadata():
         if "project_files" in request.files:
             project_files = request.files["project_files"]
         id = str(uuid.uuid4())
-        return upload_to_aws(artwork, name, description, image, project_files, id)
+        authToken = str(uuid.uuid4())
+        baseURI = upload_to_aws(artwork, name, description, image, project_files, id, authToken)
+        return baseURI + '%' + authToken
     except Exception as e:
         print(e)
         return "Error in request", 400

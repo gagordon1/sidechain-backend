@@ -7,7 +7,7 @@ DEVELOPMENT = True
 
 if DEVELOPMENT:
     SIDECHAIN_BASE_URL = "http://localhost:3000"
-    METADATA_SERVER = "http://localhost:8080"
+    METADATA_SERVER = "http://localhost:8000"
     AWS_METADATA_TABLE_NAME = "Sidechain"
 else:
     SIDECHAIN_BASE_URL = "https://www.side-chain.xyz"
